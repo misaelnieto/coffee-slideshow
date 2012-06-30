@@ -1,65 +1,85 @@
-exports = this
-exports.AutoPlay = null
+###
+Source code for CofeeSlideShow. Generated using cofeescript
+Based on cofee-slideshow. Copyright (c) 2011 by Harvest
+Last modifications in 2012 by Noe Nieto
+###
 
-jQuery(document).ready ($) ->
+root = this
+$ = jQuery
 
-  Slideshow =
-    inited: false
+$.fn.extend({
+  coffee_slideshow: (options) ->
+    #taken from chose.jquery
+    # Do no harm and return as soon as possible for unsupported browsers, namely IE6 and IE7
+    return this if $.browser.msie and ($.browser.version is "6.0" or  $.browser.version is "7.0")
+    this.each((slideshow) ->
+      $this = $ this
+      $this.data('cofeee_slideshow', new CoffeeSlideshow(this, options))
+    )
+})
 
-    settings:
-      transitionSpeed: 300,
-      delay: 5000,
-      list: '#slideshow ul',
-      handlers: '#handlers span.handler',
-      activeCSS: 'active',
-      playButton: '#slideshow_play'
+class CoffeeSlideshow
+  timeoutVar: false
 
-    init: (options) ->
-      $.extend(this.settings, options || {})
-  
-      $ul = $(this.settings.list)
-      $contentWidth = $ul.width()
-      totalWidth = $contentWidth * $ul.children('li').length
-  
-      $ul.width(totalWidth.toString() + 'px')
-  
-      clickHandler = ->
-        clearTimeout(exports.AutoPlay)
-    
-        $(Slideshow.settings.handlers).removeClass(Slideshow.settings.activeCSS)
-        $(this).parent().addClass(Slideshow.settings.activeCSS)
-    
-        margin = $contentWidth * ($(this).html() - 1)
-        $ul.stop().animate({ marginLeft: -margin }, Slideshow.settings.transitionSpeed)
-    
-        $(Slideshow.settings.playButton).show()
-    
-        false
-  
-      $(this.settings.handlers).find('a').click(clickHandler)
-      $(this.settings.playButton).find('a').click ->
-        Slideshow.playButton($(this).parent())
-        false
-  
-      this.inited = true
+  options:
+    transitionSpeed: 300,
+    delay: 5000,
+    slides: '.slides',
+    paginators: '.paginators',
+    play: '.play',
+    next: '.next',
+    previous: '.previous',
+    activeCSS: 'active',
+    AutoPlay: true
 
-    playButton: (button) ->
-      this.rotate()
-      $(button).hide()
-      this.inited = true
-      this.play()
+  constructor: (@this_slideshow, options={}) ->
+    $.extend(@options, options || {})
 
-    rotate: ->
-      next = $('#handlers span.' + this.settings.activeCSS).next(this.settings.handlers).find('a')
-      first = $(this.settings.handlers + ':first').find('a')
-      if next.length != 0 then next.trigger('click') else first.trigger('click')
+    slides = @find(@options.slides)
+    slides_width = slides.width()
+    total_width = slides_width * slides.children().length
 
-    play: (options) ->
-      if !this.inited then this.init(options)
-  
-      shift = ->
-        Slideshow.rotate()
-        $(Slideshow.settings.playButton).hide()
-        exports.AutoPlay = setTimeout(shift, Slideshow.settings.delay)
-  
-      exports.AutoPlay = setTimeout(shift, this.settings.delay)
+    slides.width(total_width.toString() + 'px')
+
+    @find(@options.paginators).children().click(@paginator_click)
+    # @find(@options.play).click(@play_click)
+
+
+  paginator_click: (evt) =>
+    clearTimeout(@timeoutVar)
+
+    currentTarget = $(evt.currentTarget)
+    currentTarget.addClass(@options.activeCSS)
+    siblings = currentTarget.siblings()
+    siblings.removeClass(@options.activeCSS)
+
+    slides = @find(@options.slides)
+    step = slides.width() / (siblings.length + 1)
+    offset = -1 * step * currentTarget.index()
+    slides.stop().animate({ marginLeft: offset }, @options.transitionSpeed)
+
+    @find(@options.play).show()
+
+    false
+
+  find: (selector) ->
+    $(@this_slideshow).find(selector)
+
+
+  play_click: ->
+    @rotate()
+    $(this).hide()
+    @play()
+
+
+  rotate: ->
+    current = @find(@options.paginators + ' ' + @options.activeCSS)
+    next = current.next()
+    first = @find(@options.paginators + ' :first')
+    if next.length != 0 then next.trigger('click') else first.trigger('click')
+
+
+  play: ->
+    @rotate()
+    @find(@options.play).hide()
+    timeoutVar = setTimeout(@play, @options.delay)

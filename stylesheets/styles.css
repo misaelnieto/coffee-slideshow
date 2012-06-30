@@ -65,7 +65,7 @@ body {
   margin: 25px auto;
   border-radius: 10px;
 }
-#slideshow #handlers {
+#slideshow .paginators{
   position: absolute;
   bottom: 15px;
   left: 15px;
@@ -73,12 +73,12 @@ body {
   color: #111;
   z-index: 100;
 }
-#slideshow #handlers span {
+
+#slideshow .paginators a,
+#slideshow .paginators a:link;
+#slideshow .paginators a:visited {
   float: left;
   margin-right: 3px;
-}
-#slideshow #handlers span a:link,
-#slideshow #handlers span a:visited {
   display: block;
   opacity: 0.75;
   color: #aaa;
@@ -88,24 +88,27 @@ body {
   text-decoration: none;
   text-shadow: 0 1px 1px #000;
 }
-#slideshow #handlers span a:hover {
+
+#slideshow .paginators a:hover {
   background: #111;
   color: #fff;
 }
-#slideshow #handlers span.active a:link,
-#slideshow #handlers span.active a:visited,
-#slideshow #handlers span.active a:hover {
+
+/*#slideshow .paginators a:link,
+#slideshow .paginators a:visited,
+#slideshow .paginators a:hover {
   background: #fff;
   color: #111;
   text-shadow: none;
-}
-#slideshow li {
+}*/
+
+#slideshow .slides li {
   float: left;
   width: 630px;
   height: 350px;
   position: relative;
 }
-#slideshow li p {
+#slideshow .slides li p {
   padding-top: 50px;
   font-size: 250px;
   text-align: center;
