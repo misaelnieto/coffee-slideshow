@@ -21,7 +21,7 @@ $.fn.extend({
 class CoffeeSlideshow
   timeoutVar: false
 
-  options:
+  defaults:
     transitionSpeed: 300,
     delay: 5000,
     slides: '.slides',
@@ -30,16 +30,23 @@ class CoffeeSlideshow
     next: '.next',
     previous: '.previous',
     activeCSS: 'active',
-    AutoPlay: true
+    AutoPlay: true,
+    vertical: false
 
   constructor: (@this_slideshow, options={}) ->
+    @options = {}
+    $.extend(@options, @defaults)
     $.extend(@options, options || {})
 
     slides = @find(@options.slides)
-    slides_width = slides.width()
-    total_width = slides_width * slides.children().length
-
-    slides.width(total_width.toString() + 'px')
+    if @options.vertical
+      slides_height = slides.height()
+      total_height = slides_height * slides.children().length
+      slides.height(slides_height.toString() + 'px')
+    else
+      slides_width = slides.width()
+      total_width = slides_width * slides.children().length
+      slides.width(total_width.toString() + 'px')
 
     @find(@options.paginators).children().click(@paginator_click)
     # @find(@options.play).click(@play_click)
@@ -54,9 +61,16 @@ class CoffeeSlideshow
     siblings.removeClass(@options.activeCSS)
 
     slides = @find(@options.slides)
-    step = slides.width() / (siblings.length + 1)
-    offset = -1 * step * currentTarget.index()
-    slides.stop().animate({ marginLeft: offset }, @options.transitionSpeed)
+    if @options.vertical
+      step = slides.height() / (siblings.length + 1)
+      offset = -1 * step * currentTarget.index()
+      props = { marginTop: offset }
+    else
+      step = slides.width() / (siblings.length + 1)
+      offset = -1 * step * currentTarget.index()
+      props = { marginLeft: offset }
+
+    slides.stop().animate(props, @options.transitionSpeed)
 
     @find(@options.play).show()
 
